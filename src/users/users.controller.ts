@@ -2,8 +2,10 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Post,
   Get,
+  Param,
+  ParseIntPipe,
+  Post,
   Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -45,8 +47,11 @@ export class UsersController {
     return GetUserResponseSchema.parse(user);
   }
 
-  @Put()
-  async update(@Body() body: unknown): Promise<UpdateUserResponseDto> {
+  @Put(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: unknown,
+  ): Promise<UpdateUserResponseDto> {
     const result = UpdateUserRequestSchema.safeParse(body);
 
     if (!result.success) {
@@ -54,8 +59,8 @@ export class UsersController {
     }
 
     const updatedUser = await this.userService.update({
+      id,
       data: result.data,
-      id: 1,
     });
 
     return UpdateUserResponseSchema.parse(updatedUser);
