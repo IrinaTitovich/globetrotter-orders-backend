@@ -47,6 +47,20 @@ export class UsersService {
     return user;
   }
 
+  async getById(id: number): Promise<UserDto> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('user doesn`t exist');
+    }
+
+    return user;
+  }
+
   async update(payload: {
     id: number;
     data: UpdateUserRequestDto;

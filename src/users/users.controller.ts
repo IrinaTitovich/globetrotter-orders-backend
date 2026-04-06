@@ -41,8 +41,17 @@ export class UsersController {
   }
 
   @Get()
-  async get(): Promise<GetUserResponseDto> {
-    const user = await this.userService.get();
+  async get(): Promise<GetUserResponseDto[]> {
+    const users = await this.userService.get();
+
+    return users.map((user) => GetUserResponseSchema.parse(user));
+  }
+
+  @Get(':id')
+  async getById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<GetUserResponseDto> {
+    const user = await this.userService.getById(id);
 
     return GetUserResponseSchema.parse(user);
   }
