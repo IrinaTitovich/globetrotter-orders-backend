@@ -1,15 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.schema';
 import { UsersService } from 'src/users/users.service';
 import { LoginUserDto } from './dto/login-user.schema';
+import { PasswordService } from './password/password.service';
+import { TokenService } from './token/token.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UsersService) {}
+  constructor(
+    private userService: UsersService,
+    private passwordService: PasswordService,
+    private readonly tokenService: TokenService,
+  ) {}
 
   async register(data: RegisterUserDto): Promise<number> {
+    const passwordHash = await this.passwordService.hash(data.password);
+
     const { id } = await this.userService.create({
-      passwordHash: data.password,
+      passwordHash,
       email: data.email,
       role: data.role,
       name: data.role,
@@ -19,7 +27,23 @@ export class AuthService {
   }
 
   async login(data: LoginUserDto) {
-    const { id } = await this.userService.getByEmail(data.email);
+    const { id, passwordHash, email } = await this.userService.getByEmail(
+      data.email,
+    );
+
+    const isPasswordValid = await this.passwordService.compare(
+      data.password,
+      passwordHash,
+    );
+
+    if (!isPasswordValid) {
+      throw new ForbiddenException();
+    }
+
+    const accessToken = await this.tokenService.signAccessToken({
+      sub: id,
+      email,
+    });
 
     return id;
   }
