@@ -26,7 +26,11 @@ export class AuthService {
     return id;
   }
 
-  async login(data: LoginUserDto) {
+  async login(data: LoginUserDto): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    userId: number;
+  }> {
     const { id, passwordHash, email } = await this.userService.getByEmail(
       data.email,
     );
@@ -45,10 +49,17 @@ export class AuthService {
       email,
     });
 
-    return id;
-  }
+    const refreshToken = await this.tokenService.signRefreshToken({
+      sub: id,
+      email,
+    });
 
-  logout() {}
+    return {
+      accessToken,
+      refreshToken,
+      userId: id,
+    };
+  }
 
   me() {}
 }

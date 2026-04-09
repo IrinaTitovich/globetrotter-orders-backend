@@ -7,6 +7,8 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -22,6 +24,7 @@ import {
   UpdateUserResponseDto,
   UpdateUserResponseSchema,
 } from './dto/update-user.schema';
+import type { AuthenticatedRequest } from 'src/auth/dto/authenticated-request';
 
 @Controller('users')
 export class UsersController {
@@ -45,6 +48,17 @@ export class UsersController {
     const users = await this.userService.get();
 
     return users.map((user) => GetUserResponseSchema.parse(user));
+  }
+
+  @Get('me')
+  async getMe(@Req() req: AuthenticatedRequest): Promise<GetUserResponseDto> {
+    if (!req.user) {
+      throw new UnauthorizedException();
+    }
+
+    const id = zod.number().parse(req.user.sub);
+
+    return this.userService.getById(id);
   }
 
   @Get(':id')

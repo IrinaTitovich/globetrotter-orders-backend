@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-interface AccessClaims {
+export interface AccessClaims {
   sub: number; // userId
   email: string;
 }
@@ -12,6 +12,20 @@ export class TokenService {
 
   signAccessToken(claims: AccessClaims) {
     return this.jwtService.signAsync(claims, { expiresIn: '15m' });
+  }
+
+  signRefreshToken(claims: AccessClaims) {
+    return this.jwtService.signAsync(claims, { expiresIn: '7d' });
+  }
+
+  refreshAccessToken(refreshToken: string) {
+    try {
+      const claim = this.jwtService.verify<AccessClaims>(refreshToken);
+
+      return this.signAccessToken(claim);
+    } catch {
+      throw new UnauthorizedException('invalid or expired refresh token');
+    }
   }
 
   verifyAccessToken(token: string): AccessClaims {
