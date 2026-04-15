@@ -10,6 +10,7 @@ import zod from 'zod';
 import { AuthService } from './auth.service';
 import type { Response } from 'express';
 import { CookieCheckerService } from './cookie-checker/cookie-checker.service';
+import { LoginUserSchema } from './dto/login-user.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -34,7 +35,7 @@ export class AuthController {
     @Body() body: unknown,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = RegisterUserSchema.safeParse(body);
+    const result = LoginUserSchema.safeParse(body);
 
     if (!result.success) {
       throw new BadRequestException(zod.treeifyError(result.error));
