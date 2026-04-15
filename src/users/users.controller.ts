@@ -9,8 +9,9 @@ import {
   Put,
   Req,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { UsersCoreService } from '../users-core/users-core.service';
 import {
   CreateUserRequestSchema,
   CreateUserResponseDto,
@@ -24,11 +25,13 @@ import {
   UpdateUserResponseDto,
   UpdateUserResponseSchema,
 } from './dto/update-user.schema';
-import type { AuthenticatedRequest } from 'src/auth/dto/authenticated-request';
+import type { AuthenticatedRequest } from '../auth/dto/authenticated-request';
+import { JwtAuthGuard } from '../auth/jwt-auth-guard/jwt-auth-guard.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
-  constructor(private userService: UsersService) {}
+  constructor(private userService: UsersCoreService) {}
 
   @Post()
   async create(@Body() body: unknown): Promise<CreateUserResponseDto> {

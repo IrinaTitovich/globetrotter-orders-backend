@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.schema';
-import { UsersService } from 'src/users/users.service';
+import { UsersCoreService } from '../users-core/users-core.service';
 import { LoginUserDto } from './dto/login-user.schema';
 import { PasswordService } from './password/password.service';
 import { TokenService } from './token/token.service';
@@ -8,7 +8,7 @@ import { TokenService } from './token/token.service';
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UsersService,
+    private userService: UsersCoreService,
     private passwordService: PasswordService,
     private readonly tokenService: TokenService,
   ) {}

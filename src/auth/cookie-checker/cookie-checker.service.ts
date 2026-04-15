@@ -50,7 +50,8 @@ export class CookieCheckerService {
       return null;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-    return typeof value[name] === 'string' ? value : null;
+    const cookieValue = value[name];
+
+    return typeof cookieValue === 'string' ? cookieValue : null;
   }
 }
