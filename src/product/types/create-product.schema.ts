@@ -3,6 +3,8 @@ import { ProductSchema } from './product.schema';
 
 export const CreateProductRequestSchema = ProductSchema.pick({
   name: true,
+  description: true,
+  icon: true,
 });
 
 export type CreateProductRequestDto = z.infer<
@@ -10,7 +12,6 @@ export type CreateProductRequestDto = z.infer<
 >;
 
 export const CreateProductResponseSchema = ProductSchema.pick({
-  name: true,
   id: true,
 });
 
