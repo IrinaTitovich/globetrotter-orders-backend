@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -69,5 +70,10 @@ export class ProductController {
     }
 
     return this.productService.update(id, result.data);
+  }
+
+  @Delete(':id/delete')
+  async delete(@Param('id') id: string): Promise<void> {
+    return this.productService.delete(id);
   }
 }
