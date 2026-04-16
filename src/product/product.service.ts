@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateProductRequestDto, ProductDto } from './types';
+import { CreateProductRequestDto, ProductDto, ProductsDto } from './types';
 
 @Injectable()
 export class ProductService {
@@ -27,8 +27,33 @@ export class ProductService {
     });
   }
 
-  async get(): Promise<ProductDto[]> {
-    return this.prisma.product.findMany();
+  async get({
+    pageSize,
+    page,
+  }: {
+    pageSize: number;
+    page: number;
+  }): Promise<ProductsDto> {
+    const skip = (page - 1) * pageSize;
+
+    const [products, total] = await this.prisma.$transaction([
+      this.prisma.product.findMany({
+        skip,
+        take: pageSize,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.product.count(),
+    ]);
+
+    return {
+      products,
+      page,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    };
   }
 
   async getById(id: string): Promise<ProductDto> {
