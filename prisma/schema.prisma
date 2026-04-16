@@ -18,10 +18,63 @@ model User {
   role Role @default(USER)
   passwordHash String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime? @updatedAt
+
+  requesterOrders Order[] @relation("Requester")
 }
 
 enum Role{
   USER
   ADMIN
+}
+
+model Product {
+  id String @id @default(uuid())
+  name String
+
+  orders Order[]
+}
+
+model Location {
+  id String @id @default(uuid())
+  name String
+
+  fromOrders Order[] @relation("FromLocation")
+  toOrders   Order[] @relation("ToLocation")
+}
+
+enum Status{
+  PENDING
+  PROCESSING
+  COLLECTED
+  IN_TRANSIT
+  DELIVERED
+  COMPLETED
+  ARCHIVED
+}
+
+enum TRANSPORT_TYPE{
+  SHIP
+  CAR
+  AIRPLANE
+}
+
+model Order {
+  id String @id @default(uuid())
+
+  productId String
+  product Product @relation(fields:[productId], references:[id])
+
+  fromLocationId String
+  fromLocation Location @relation("FromLocation", fields:[fromLocationId], references:[id])
+
+  toLocationId String
+  toLocation Location @relation("ToLocation", fields:[toLocationId], references:[id])
+
+  requesterId Int
+  requester User @relation("Requester", fields:[requesterId], references:[id])
+
+  status Status
+
+  transportType TRANSPORT_TYPE
 }
