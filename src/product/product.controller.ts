@@ -3,7 +3,9 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +18,10 @@ import {
 import { JwtAuthGuard } from 'src/auth/jwt-auth-guard/jwt-auth-guard.service';
 import { ProductService } from './product.service';
 import zod from 'zod';
+import {
+  UpdateProductRequestSchema,
+  UpdateProductResponseDto,
+} from './types/update-product.schema';
 
 @UseGuards(JwtAuthGuard)
 @Controller('products')
@@ -49,5 +55,19 @@ export class ProductController {
     const product = await this.productService.create(result.data);
 
     return CreateProductResponseSchema.parse(product);
+  }
+
+  @Put(':id/update')
+  async update(
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ): Promise<UpdateProductResponseDto> {
+    const result = UpdateProductRequestSchema.safeParse(body);
+
+    if (!result.success) {
+      throw new BadRequestException(zod.treeifyError(result.error));
+    }
+
+    return this.productService.update(id, result.data);
   }
 }

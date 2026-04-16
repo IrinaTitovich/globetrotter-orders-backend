@@ -6,6 +6,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductRequestDto, ProductDto, ProductsDto } from './types';
+import {
+  UpdateProductRequestDto,
+  UpdateProductResponseDto,
+} from './types/update-product.schema';
 
 @Injectable()
 export class ProductService {
@@ -70,33 +74,33 @@ export class ProductService {
     return product;
   }
 
-  async update(payload: ProductDto): Promise<ProductDto> {
+  async update(
+    id: string,
+    payload: UpdateProductRequestDto,
+  ): Promise<UpdateProductResponseDto> {
     const productByName = await this.prisma.product.findUnique({
       where: {
         name: payload.name,
       },
     });
 
-    if (productByName?.id && productByName.id !== payload.id) {
+    if (productByName?.id && productByName.id !== id) {
       throw new ConflictException('product already exists');
     }
 
     const productById = await this.prisma.product.findUnique({
       where: {
-        id: payload.id,
+        id,
       },
     });
 
     if (!productById) {
-      throw new NotFoundException(`product with id ${payload.id} not found`);
+      throw new NotFoundException(`product with id ${id} not found`);
     }
 
     return this.prisma.product.update({
-      where: { id: payload.id },
-      data: {
-        id: payload.id,
-        name: payload.name,
-      },
+      where: { id },
+      data: payload,
     });
   }
 }
