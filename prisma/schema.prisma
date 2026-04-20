@@ -42,7 +42,11 @@ model Product {
 
 model Location {
   id String @id @default(uuid())
-  name String
+  name String @unique
+  city String
+  country String
+  lat Int
+  lng Int
 
   fromOrders Order[] @relation("FromLocation")
   toOrders   Order[] @relation("ToLocation")
